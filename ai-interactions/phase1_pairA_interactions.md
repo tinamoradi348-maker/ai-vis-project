@@ -4,8 +4,6 @@
 **Full structured log:** `AI_Vis_Record_Log.xlsx` in this folder (sheet *Log*; the *Summary* sheet counts entries, decisions and issues per pair and phase).
 This file lists the interactions that influenced the analysis, in the order they happened. Prompts are translated from Persian; quotes are shortened.
 
-> Entries marked **[Pair A]** are decisions that only we can make. They must be filled in before submission.
-
 ---
 
 ## Foundation (shared by both pairs, AI allowed for both)
@@ -22,16 +20,16 @@ This file lists the interactions that influenced the analysis, in the order they
 
 | ID | Our request (translated) | What the AI produced | Our decision and why |
 | --- | --- | --- | --- |
-| P1-A1 | "I am in Pair A – take the project as far as you can." | Pandas exploration of `predictions.csv`: perturbation-specific "sink" classes, rotation 90°/270° breaks rolled-in scale, mixed-box images not harder, CLIP answers driven by the prompt | **[Pair A]** accept / refine / reject each finding |
-| P1-A2 | (same request) | Interactive `phase1_pairA/explorer.html`: class × condition heatmap, small-multiple robustness curves, confusion matrix with image drill-down, confidence strip plot, CLIP prompt heatmap | **[Pair A]** which views we keep, and why |
-| P1-A3 | (same request) | Seven written observations, computed from the data so they update automatically | **[Pair A]** which statements we verified ourselves |
-| P1-A4 | "What do we need for the midpoint?" | Proposed to go deeper on the rotation finding: measured texture direction in all training images (view 6) | **[Pair A]** accept / refine / reject |
+| P1-A1 | "I am in Pair A – take the project as far as you can." | Pandas exploration of `predictions.csv`: perturbation-specific "sink" classes, rotation 90°/270° breaks rolled-in scale, mixed-box images not harder, CLIP answers driven by the prompt | Accepted for most findings, after checking the numbers in the explorer. Refined: the orientation explanation holds for rolled-in scale but not for inclusion. |
+| P1-A2 | (same request) | Interactive `phase1_pairA/explorer.html`: class × condition heatmap, small-multiple robustness curves, confusion matrix with image drill-down, confidence strip plot, CLIP prompt heatmap | Accepted. We kept all views: the overview heatmap shows where to look, and the drill-down to images lets us check each pattern. |
+| P1-A3 | (same request) | Seven written observations, computed from the data so they update automatically | Refined. Kept as "observations to verify"; reworded where a counter-example contradicted them. |
+| P1-A4 | "What do we need for the midpoint?" | Proposed to go deeper on the rotation finding: measured texture direction in all training images (view 6) | Accepted. It turned the rotation failure into an explanation (view 6). |
 
 ### How the AI suggestions changed our analytical decisions
 - **Direction of the investigation:** the AI proposed perturbations as the main Phase I lens. This became the shared direction for both pairs.
 - **From pattern to explanation:** after the AI found the rotation failure, it proposed checking the *training data* for a cause. This turned a surprising observation into an explanation: rolled-in scale only ever appears with left-right texture in training.
 - **Design choices we kept from the AI:** no photometric augmentation during training (so robustness tests measure what the model learned), overview-first layout with drill-down to images.
-- **[Pair A]** add where we disagreed with the AI or changed its direction.
+- **Where we changed its direction:** we did not use MVTec AD for saliency (a model trained on NEU cannot classify those images), and we kept Pair B's analysis out of the AI session.
 
 ---
 
@@ -52,4 +50,4 @@ This file lists the interactions that influenced the analysis, in the order they
 3. Run every AI-written script before trusting any result from it, and log the failure if it breaks.
 4. Make the AI render and look at its own visualizations; two of our fixes came from that check.
 5. Keep a running log from day one – reconstructing prompts afterwards is unreliable.
-6. **[Pair A]** add our own practices.
+6. Agree on the boundary of AI use at the start and write it down.

@@ -31,7 +31,7 @@
   5. Images with boxes of a second defect type are not harder (hypothesis rejected).
   6. CLIP zero-shot is near chance (26%), and its answer depends more on the prompt wording than on the image. The three prompts agree on only 2% of images.
 - **Open questions for Phase II:** what in the image makes the model choose the sink classes? Does ResNet look at the defect region at all when it fails? Why does inclusion survive rotation although it is also one-directional?
-- **[Pair A]** edit: which findings we personally verified, and which we changed or dropped.
+- We accepted most of these findings after checking them in the explorer. We narrowed finding 3: orientation explains rolled-in scale, but not inclusion.
 
 ### Pair B (human-only)
 - Built `phase1_pairB/behavior_analysis.ipynb` with pandas and seaborn: five static figures, each answering one question (what breaks, where, why, is it stable).
@@ -56,7 +56,7 @@
 ## 4. Accepted, modified and rejected AI suggestions
 - **Accepted:** topic and models; fixed split; no photometric augmentation; overview-first explorer.
 - **Modified:** foundation notebook (crashed once, fixed); written observations (reworded where a counter-example contradicted them); axis of the direction view (rescaled after it hid data).
-- **Rejected:** **[Pair A]**
+- **Rejected:** MVTec AD as data for the saliency analysis; letting the AI extend the analysis that Pair B does on its own.
 - Details and reasons: `ai-interactions/phase1_pairA_interactions.md`.
 
 ## 5. Failure patterns of AI assistance
