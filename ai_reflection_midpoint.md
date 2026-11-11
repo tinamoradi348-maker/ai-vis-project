@@ -2,13 +2,13 @@
 
 **AI-aided pair in Phase I (Pair A):**
 - Tina Moradi, k12455648
-- Mehdi Khodadadi, TODO
+- Mehdi Khodadadi, k12453161
 
 **Human-only pair in Phase I (Pair B):**
 - Neda HosseinaliZadeh Shalmani, k12454244
 - Reza Ghadiri, k12453160
 
-**Team:** TEAM_NAME · **Task:** classification of six surface-defect types on hot-rolled steel (NEU) · **Models:** ResNet-18 (fine-tuned), CLIP ViT-B/32 (zero-shot)
+**Team:** Classified documents · **Task:** classification of six surface-defect types on hot-rolled steel (NEU) · **Models:** ResNet-18 (fine-tuned), CLIP ViT-B/32 (zero-shot)
 **AI tool used by Pair A:** Claude (Anthropic). Full record: `ai-interactions/`.
 
 ---
@@ -34,7 +34,15 @@
 - **[Pair A]** edit: which findings we personally verified, and which we changed or dropped.
 
 ### Pair B (human-only)
-- **[Pair B]** what you did, which visualizations you built, what you found.
+- Built `phase1_pairB/behavior_analysis.ipynb` with pandas and seaborn: five static figures, each answering one question (what breaks, where, why, is it stable).
+- Key findings:
+  1. ResNet-18 drops from 1.00 on clean images to 0.22 with strong noise (σ = 30) and 0.33 with strong blur. Moderate brightness and contrast changes and a 180° rotation barely affect it.
+  2. The failures are class-specific. At blur level 1, crazing and rolled-in scale fall to 0.00 while inclusion stays at 1.00. After a 90° or 270° rotation only rolled-in scale falls to 0.00.
+  3. ResNet-18 confidence partly separates right from wrong (median 0.996 vs 0.41). CLIP confidence does not (median 0.45 vs 0.44).
+  4. CLIP's class bias is not stable: scratches is predicted for 51% of clean images but only 4% under strong noise, where pitted surface rises to 69%.
+  5. The prompt set flips CLIP's per-class recall (inclusion 0.91 with "steel" prompts, 0.00 with "ensemble").
+- **Still open:** our explanations of why these errors happen are visual hypotheses; we will test them in Phase II.
+- Full write-up: `phase1_pairB/ai_reflection_pairB.md`.
 
 ## 3. Comparing the two processes
 | Question | Pair A (AI-aided) | Pair B (human-only) |
