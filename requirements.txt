@@ -1,0 +1,15 @@
+# CPU install works on any laptop; Colab already has torch/torchvision
+torch>=2.2
+torchvision>=0.17
+timm>=0.9
+open_clip_torch>=2.24
+numpy
+pandas
+pillow
+matplotlib
+plotly
+scikit-learn
+umap-learn
+grad-cam
+openpyxl
+jupyterlab

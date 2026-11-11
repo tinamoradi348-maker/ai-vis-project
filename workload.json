@@ -1,0 +1,25 @@
+{
+    "team_name": "Classified documents",
+    "students": [
+        {
+            "first_name": "Tina",
+            "last_name": "Moradi",
+            "workload": 0.25
+        },
+        {
+            "first_name": "Mehdi",
+            "last_name": "Khodadadi",
+            "workload": 0.25
+        },
+        {
+            "first_name": "Neda",
+            "last_name": "HosseinaliZadeh Shalmani",
+            "workload": 0.25
+        },
+        {
+            "first_name": "Reza",
+            "last_name": "Ghadiri",
+            "workload": 0.25
+        }
+    ]
+}

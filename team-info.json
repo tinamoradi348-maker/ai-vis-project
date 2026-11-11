@@ -1,0 +1,33 @@
+{
+    "team_name": "Classified documents",
+    "students": [
+        {
+            "student_id": "k12455648",
+            "first_name": "Tina",
+            "last_name": "Moradi",
+            "email": "tinamoradi348@gmail.com",
+            "github_user": "tinamoradi348-maker"
+        },
+        {
+            "student_id": "k12453161",
+            "first_name": "Mehdi",
+            "last_name": "Khodadadi",
+            "email": "mehdikh0802@gmail.com",
+            "github_user": "mehdikh802"
+        },
+        {
+            "student_id": "k12454244",
+            "first_name": "Neda",
+            "last_name": "HosseinaliZadeh Shalmani",
+            "email": "Nedaalizadeh9898@gmail.com",
+            "github_user": "Nedaalizadeh9898"
+        },
+        {
+            "student_id": "k12453160",
+            "first_name": "Reza",
+            "last_name": "Ghadiri",
+            "email": "ghadiri552@gmail.com",
+            "github_user": "Kolaghalbili"
+        }
+    ]
+}
