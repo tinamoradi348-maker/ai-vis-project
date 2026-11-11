@@ -1,0 +1,18 @@
+# raw data and model weights stay out of git
+data/raw/
+*.zip
+*.cache
+*.pt
+*.pth
+# python / jupyter
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+# OS / Office
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*.xlsx
+# internal notes for the team (not part of the submission)
+docs/guide_fa.md
+NEU-CLS/

@@ -23,7 +23,7 @@ For ResNet-18, mostly yes: across all 6,480 test predictions, correct answers ha
 For CLIP, confidence doesn't help at all: correct predictions average 0.475 (median 0.448) and wrong ones average 0.460 (median 0.436). The scores sit around 0.44–0.48 either way.
 
 **4. Does CLIP always have the same class bias? (`clip_prediction_share.png`)**
-Not across perturbations. On clean images (using `ensemble` prompts), CLIP heavily favors `scratches` (predicting it 51% of the time) and `pitted_surface` (31%), while never predicting `inclusion`. But under heavy noise (sigma 30), `scratches` predictions drop to 4% and `pitted_surface` jumps to 69% (with `patches` at 27%).
+Not across perturbations. On clean images (using `ensemble` prompts), CLIP heavily favors `scratches` (predicting it 51% of the time) and `pitted_surface` (31%), while never predicting `inclusion`. But under heavy noise (sigma 30), `scratches` predictions drop to 4% and `pitted_surface` jumps to 69% (with `crazing` at 13% and `inclusion` at 10%).
 
 **5. How much do text prompts matter for CLIP? (`clip_prompt_sets.png`)**
 We compared the four prompt sets (`plain`, `steel`, `defect`, `ensemble`) on clean images. Overall accuracy is low for all of them (0.18 to 0.26), but the class predictions flip completely depending on the wording. With `steel` prompts, `inclusion` gets 0.91 recall and `pitted_surface` gets 0.04. With `ensemble` prompts, `inclusion` drops to 0.00 while `pitted_surface` goes up to 0.89. This shows zero-shot CLIP is very sensitive to small wording changes on industrial images.
@@ -31,4 +31,4 @@ We compared the four prompt sets (`plain`, `steel`, `defect`, `ensemble`) on cle
 **Limitations & Challenges**
 - Coding the pivot tables and sorting the 24 conditions manually in Pandas/Seaborn took some trial and error with the syntax, though it forced us to check the dataframe values directly.
 - Each cell in the class heatmap only has 45 test images from a single model run.
-- Our explanations for *why* blur, noise, and 90° rotations cause these specific errors are visual hypotheses for now—we plan to test them with Grad-CAM و embeddings in Phase II.
+- Our explanations for *why* blur, noise, and 90° rotations cause these specific errors are visual hypotheses for now—we plan to test them with Grad-CAM and embeddings in Phase II.

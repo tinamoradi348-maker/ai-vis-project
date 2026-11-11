@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase I Behavior Explorer</title>
+<style>
+.viz-root{
+  color-scheme:light;
+  --surface-0:#f4f3f0; --surface-1:#fcfcfb; --hair:#e4e2dd; --grid:#ecebe7;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#7a7974;
+  --series-1:#2a78d6; --series-2:#eb6834; --neutral:#a9a7a0;
+  --seq-0:#f0efec; --seq-1:#cde2fb; --seq-2:#9ec5f4; --seq-3:#6da7ec; --seq-4:#3987e5; --seq-5:#256abf; --seq-6:#184f95; --seq-7:#0d366b;
+  --note-bg:#fff7e6; --note-bd:#eda100;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])) .viz-root{
+    color-scheme:dark;
+    --surface-0:#121211; --surface-1:#1a1a19; --hair:#33332f; --grid:#2a2a27;
+    --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#8f8e86;
+    --series-1:#3987e5; --series-2:#d95926; --neutral:#6b6a64;
+    --seq-0:#262624; --seq-1:#0d366b; --seq-2:#104281; --seq-3:#184f95; --seq-4:#1c5cab; --seq-5:#2a78d6; --seq-6:#5598e7; --seq-7:#9ec5f4;
+    --note-bg:#2a2414; --note-bd:#c98500;
+  }
+}
+:root[data-theme="dark"] .viz-root{
+  color-scheme:dark;
+  --surface-0:#121211; --surface-1:#1a1a19; --hair:#33332f; --grid:#2a2a27;
+  --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#8f8e86;
+  --series-1:#3987e5; --series-2:#d95926; --neutral:#6b6a64;
+  --seq-0:#262624; --seq-1:#0d366b; --seq-2:#104281; --seq-3:#184f95; --seq-4:#1c5cab; --seq-5:#2a78d6; --seq-6:#5598e7; --seq-7:#9ec5f4;
+  --note-bg:#2a2414; --note-bd:#c98500;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--surface-0)}
+.viz-root{font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text-primary);background:var(--surface-0);min-height:100vh;padding:24px 16px 48px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:16px;margin:0 0 2px}
+.sub{color:var(--text-secondary);margin:0 0 16px}
+.q{color:var(--text-secondary);margin:0 0 12px;font-size:13px}
+.filters{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:12px;align-items:end;background:var(--surface-0);padding:10px 0 12px;border-bottom:1px solid var(--hair);margin-bottom:16px}
+.filters label{display:flex;flex-direction:column;font-size:12px;color:var(--text-secondary);gap:4px}
+select{font:inherit;color:var(--text-primary);background:var(--surface-1);border:1px solid var(--hair);border-radius:6px;padding:6px 8px;min-width:150px}
+.card{background:var(--surface-1);border:1px solid var(--hair);border-radius:10px;padding:16px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px}
+@media (max-width:820px){.grid2{grid-template-columns:1fr}}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);margin:4px 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.lk{display:inline-block;width:16px;height:0;border-top:2px solid}
+.lk.dash{border-top-style:dashed}
+.sm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:820px){.sm{grid-template-columns:repeat(2,minmax(0,1fr))}}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{fill:var(--text-secondary);font-size:11px}
+svg .ttl{fill:var(--text-primary);font-size:12px;font-weight:600}
+.gridline{stroke:var(--grid);stroke-width:1}
+.axis{stroke:var(--hair)}
+.cell{cursor:pointer;stroke:var(--surface-1);stroke-width:2}
+.cell:hover,.cell:focus{stroke:var(--text-primary);outline:none}
+.cell.sel{stroke:var(--text-primary);stroke-width:2.5}
+.tip{position:fixed;pointer-events:none;background:var(--surface-1);color:var(--text-primary);border:1px solid var(--hair);border-radius:8px;padding:8px 10px;font-size:12px;box-shadow:0 4px 16px rgba(0,0,0,.15);display:none;z-index:20;max-width:260px}
+.tip b{font-size:14px}
+.tip .m{color:var(--text-secondary)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:8px}
+.thumb{font-size:11px;color:var(--text-secondary);text-align:center}
+.thumb canvas{width:96px;height:96px;border-radius:6px;display:block;margin:0 auto 4px;border:1px solid var(--hair)}
+.thumb .p{color:var(--text-primary)}
+.note{background:var(--note-bg);border-left:3px solid var(--note-bd);border-radius:6px;padding:12px 14px;font-size:13px}
+.note ul{margin:6px 0 0;padding-left:18px}
+.muted{color:var(--text-muted);font-size:12px}
+details summary{cursor:pointer;color:var(--text-secondary);font-size:12px;margin-top:8px}
+table{border-collapse:collapse;font-size:12px;margin-top:8px;width:100%}
+th,td{border-bottom:1px solid var(--hair);padding:4px 6px;text-align:right}
+th:first-child,td:first-child{text-align:left}
+.scroll{overflow-x:auto}
+.empty{color:var(--text-muted);font-size:12px;padding:8px 0}
+</style>
+</head>
+<body>
+<div class="viz-root"><div class="wrap">
+  <h1>Phase I – How do the models behave?</h1>
+  <p class="sub">NEU steel-defect test set (270 images, 45 per class) · ResNet-18 (fine-tuned) vs CLIP ViT-B/32 (zero-shot) · 24 input conditions. Pair A, built with AI assistance (logged).</p>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <label>Model<select id="fModel"></select></label>
+    <label>Perturbation<select id="fPert"></select></label>
+    <label>Level<select id="fLevel"></select></label>
+  </div>
+
+  <section class="card">
+    <h2>1 · Who breaks where?</h2>
+    <p class="q">Accuracy per defect class under every condition for the selected model. Click a column to select that condition below.</p>
+    <div class="scroll"><svg id="ovw" role="img" aria-label="Accuracy heatmap, classes by condition"></svg></div>
+    <div class="legend" id="ovwLegend"></div>
+  </section>
+
+  <section class="card">
+    <h2>2 · How fast does accuracy fall?</h2>
+    <p class="q">Test accuracy against perturbation strength. Dashed line: clean accuracy of each model. Dotted line: chance (1/6).</p>
+    <div class="legend"><span><i class="lk" style="border-color:var(--series-1)"></i>ResNet-18</span><span><i class="lk" style="border-color:var(--series-2)"></i><span id="clipName">CLIP</span></span><span><i class="lk dash" style="border-color:var(--neutral)"></i>chance 16.7%</span></div>
+    <div class="sm" id="curves"></div>
+    <details><summary>Table view</summary><div class="scroll" id="curvesTable"></div></details>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>3 · Where do the predictions go?</h2>
+      <p class="q">True class (rows) × predicted class (columns) for the selected model and condition. Click a cell to see the images in it.</p>
+      <svg id="conf" role="img" aria-label="Confusion matrix"></svg>
+      <div class="legend" id="confLegend"></div>
+    </section>
+    <section class="card">
+      <h2>4 · Is the model sure when it is wrong?</h2>
+      <p class="q">Confidence of each prediction under the selected condition, split by correct and wrong. Hover a dot for the image.</p>
+      <svg id="strip" role="img" aria-label="Confidence strip plot"></svg>
+      <p class="muted" id="stripStats"></p>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2 id="galTitle">Images</h2>
+    <p class="muted">Thumbnails show the perturbation as the model received it (noise is re-drawn for display, so the exact pixels differ).</p>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <section class="card">
+    <h2>5 · CLIP: does the prompt decide the answer?</h2>
+    <p class="q">Share of clean test images assigned to each class, per prompt wording. A model that reads the image would spread its answers evenly (16.7% each).</p>
+    <svg id="prompt" role="img" aria-label="CLIP prompt set by predicted class"></svg>
+    <p class="muted" id="promptAgree"></p>
+  </section>
+
+  <section class="card">
+    <h2>6 · Why does a 90° turn break rolled-in scale?</h2>
+    <p class="q">Each dot is one training image. Horizontal position: share of the image's contrast that changes from left to right (horizontal gradient energy). Below 50%: the texture's stripes run left-right; above 50%: they run up-down. Right column: ResNet-18 accuracy on the test images of that class after a 90° rotation.</p>
+    <svg id="orient" role="img" aria-label="Texture direction per class in the training data"></svg>
+    <p class="muted" id="orientNote"></p>
+  </section>
+
+  <section class="note">
+    <b>Observations to verify (AI-generated first reading – Pair A decides what to keep)</b>
+    <ul id="obs"></ul>
+  </section>
+</div></div>
+<div class="tip" id="tip" role="tooltip"></div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(()=>{
+const D=JSON.parse(document.getElementById('data').textContent);
+const C=D.classes, NC=C.length, CL=['crazing','inclusion','patches','pitted surface','rolled-in scale','scratches'];
+const MODEL_LABEL={resnet:'ResNet-18',clip_ensemble:'CLIP · ensemble',clip_defect:'CLIP · "defect" prompt',clip_steel:'CLIP · "steel" prompt',clip_plain:'CLIP · "plain" prompt'};
+const PERT_LABEL={clean:'clean',brightness:'brightness',contrast:'contrast',blur:'blur (px)',noise:'noise (σ)',rotation:'rotation (°)',rotation_small:'small rotation (°)'};
+const NS='http://www.w3.org/2000/svg';
+const css=n=>getComputedStyle(document.querySelector('.viz-root')).getPropertyValue(n).trim();
+// index rows: [img, model, cond, pred, conf, ptrue]
+const byMC={};
+for(const r of D.rows){(byMC[r[1]+'|'+r[2]]??=[]).push(r)}
+const rowsOf=(m,c)=>byMC[m+'|'+c]||[];
+const acc=(m,c,cls)=>{const rs=rowsOf(m,c).filter(r=>cls==null||D.img_class[r[0]]===cls);return rs.length?rs.filter(r=>r[3]===D.img_class[r[0]]).length/rs.length:NaN};
+const condIdx=(p,l)=>D.conds.findIndex(c=>c[0]===p&&c[1]===l);
+const CLEAN=condIdx('clean',0);
+const perts=[...new Set(D.conds.map(c=>c[0]))];
+const fmtL=(p,l)=>p==='clean'?'':(p==='brightness'||p==='contrast')?'×'+l:String(l);
+const pct=v=>isNaN(v)?'–':Math.round(v*100)+'%';
+const el=(tag,attrs={},parent)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e};
+const txt=(parent,x,y,s,attrs={})=>{const t=el('text',{x,y,...attrs},parent);t.textContent=s;return t};
+
+// state
+const st={model:D.models.indexOf('resnet'),cond:condIdx('noise',10),cell:null};
+const fM=document.getElementById('fModel'),fP=document.getElementById('fPert'),fL=document.getElementById('fLevel');
+D.models.forEach((m,i)=>fM.add(new Option(MODEL_LABEL[m],i)));
+perts.forEach(p=>fP.add(new Option(PERT_LABEL[p],p)));
+function syncLevels(){const p=D.conds[st.cond][0];fP.value=p;fL.innerHTML='';D.conds.forEach((c,i)=>{if(c[0]===p)fL.add(new Option(fmtL(c[0],c[1]),i))});fL.value=st.cond;fL.disabled=p==='clean'}
+fM.value=st.model;
+fM.onchange=()=>{st.model=+fM.value;st.cell=null;render()};
+fP.onchange=()=>{st.cond=D.conds.findIndex(c=>c[0]===fP.value);st.cell=null;render()};
+fL.onchange=()=>{st.cond=+fL.value;st.cell=null;render()};
+
+// tooltip
+const tip=document.getElementById('tip');
+function showTip(ev,nodes){tip.replaceChildren(...nodes);tip.style.display='block';const r=tip.getBoundingClientRect();let x=ev.clientX+14,y=ev.clientY+14;if(x+r.width>innerWidth-8)x=ev.clientX-r.width-14;if(y+r.height>innerHeight-8)y=ev.clientY-r.height-14;tip.style.left=x+'px';tip.style.top=y+'px'}
+function hideTip(){tip.style.display='none'}
+const tline=(strong,rest)=>{const d=document.createElement('div');if(strong!=null){const b=document.createElement('b');b.textContent=strong;d.appendChild(b);d.append(' ')}const s=document.createElement('span');s.className='m';s.textContent=rest;d.appendChild(s);return d};
+function bindTip(node,fn){node.addEventListener('pointermove',e=>showTip(e,fn()));node.addEventListener('pointerleave',hideTip);node.addEventListener('focus',e=>{const r=node.getBoundingClientRect();showTip({clientX:r.right,clientY:r.top},fn())});node.addEventListener('blur',hideTip)}
+
+const seq=v=>{if(isNaN(v))return css('--seq-0');const k=Math.min(7,Math.floor(v*8));return css('--seq-'+Math.max(1,k))};
+const lum=h=>{h=h.replace('#','');const c=[0,2,4].map(i=>{let v=parseInt(h.substr(i,2),16)/255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+const inkOn=v=>lum(seq(v))<0.28?'#ffffff':'#0b0b0b';
+
+// 1 overview heatmap: classes x conditions
+function drawOverview(){
+  const svg=document.getElementById('ovw');svg.replaceChildren();
+  const L=118,T=46,cw=38,ch=26,W=L+cw*D.conds.length+8,H=T+ch*NC+8;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.style.minWidth=W+'px';
+  // group labels
+  let prev=null,start=0;
+  D.conds.forEach((c,i)=>{if(c[0]!==prev){if(prev!==null)groupLbl(prev,start,i-1);prev=c[0];start=i}});groupLbl(prev,start,D.conds.length-1);
+  function groupLbl(p,a,b){const x=L+cw*a+2,x2=L+cw*(b+1)-2;el('line',{x1:x,x2,y1:16,y2:16,class:'axis'},svg);txt(svg,(x+x2)/2,12,p==='rotation_small'?'small rot.':p,{'text-anchor':'middle','class':'ttl'})}
+  D.conds.forEach((c,j)=>{const t=txt(svg,L+cw*j+cw/2,36,c[0]==='clean'?'':fmtL(c[0],c[1]),{'text-anchor':'middle'});if(j===st.cond){t.setAttribute('class','ttl')}});
+  C.forEach((cl,i)=>{txt(svg,L-8,T+ch*i+ch/2+4,CL[i],{'text-anchor':'end'});
+    D.conds.forEach((c,j)=>{const v=acc(st.model,j,i);const r=el('rect',{x:L+cw*j,y:T+ch*i,width:cw,height:ch,rx:3,fill:seq(v),class:'cell'+(j===st.cond?' sel':''),tabindex:0},svg);
+      const t=txt(svg,L+cw*j+cw/2,T+ch*i+ch/2+4,isNaN(v)?'':Math.round(v*100),{'text-anchor':'middle','pointer-events':'none'});t.style.fill=inkOn(v);
+      bindTip(r,()=>[tline(pct(v),'accuracy'),tline(null,`${CL[i]} · ${PERT_LABEL[c[0]]} ${fmtL(c[0],c[1])}`.trim()),tline(null,MODEL_LABEL[D.models[st.model]])]);
+      r.addEventListener('click',()=>{st.cond=j;st.cell=null;render()});r.addEventListener('keydown',e=>{if(e.key==='Enter'){st.cond=j;st.cell=null;render()}});
+    })});
+  const lg=document.getElementById('ovwLegend');lg.replaceChildren();const s=document.createElement('span');s.textContent='Accuracy (%)  ';lg.appendChild(s);
+  [0,.25,.5,.75,1].forEach(v=>{const sp=document.createElement('span');const b=document.createElement('i');b.style.cssText=`display:inline-block;width:14px;height:10px;border-radius:2px;background:${seq(v===1?.99:v)}`;sp.append(b,' '+Math.round(v*100));lg.appendChild(sp)});
+}
+
+// 2 small-multiple curves
+function drawCurves(){
+  const box=document.getElementById('curves');box.replaceChildren();
+  const clipM=D.models[st.model].startsWith('clip')?st.model:D.models.indexOf('clip_ensemble');
+  document.getElementById('clipName').textContent=MODEL_LABEL[D.models[clipM]];
+  const series=[[D.models.indexOf('resnet'),'--series-1'],[clipM,'--series-2']];
+  const tbl=[];
+  perts.filter(p=>p!=='clean').forEach(p=>{
+    const idx=D.conds.map((c,i)=>[c,i]).filter(([c])=>c[0]===p);
+    const W=300,H=170,L=34,R=10,T=22,B=26,pw=W-L-R,ph=H-T-B;
+    const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Accuracy vs '+p});box.appendChild(svg);
+    txt(svg,L,13,PERT_LABEL[p],{'class':'ttl'});
+    const n=idx.length,xs=k=>L+(n===1?pw/2:pw*k/(n-1)),ys=v=>T+ph*(1-v);
+    [0,.5,1].forEach(v=>{el('line',{x1:L,x2:W-R,y1:ys(v),y2:ys(v),class:'gridline'},svg);txt(svg,L-6,ys(v)+4,Math.round(v*100)+'%',{'text-anchor':'end'})});
+    el('line',{x1:L,x2:W-R,y1:ys(1/6),y2:ys(1/6),stroke:css('--neutral'),'stroke-dasharray':'2 3','stroke-width':1.5},svg);
+    idx.forEach(([c],k)=>txt(svg,xs(k),H-8,fmtL(c[0],c[1]),{'text-anchor':'middle'}));
+    series.forEach(([m,col])=>{
+      const cleanV=acc(m,CLEAN);el('line',{x1:L,x2:W-R,y1:ys(cleanV),y2:ys(cleanV),stroke:css(col),'stroke-dasharray':'5 4','stroke-width':1,opacity:.6},svg);
+      const pts=idx.map(([c,i],k)=>[xs(k),ys(acc(m,i))]);
+      el('polyline',{points:pts.map(p=>p.join(',')).join(' '),fill:'none',stroke:css(col),'stroke-width':2,'stroke-linejoin':'round'},svg);
+      pts.forEach(([x,y])=>el('circle',{cx:x,cy:y,r:4,fill:css(col),stroke:css('--surface-1'),'stroke-width':2},svg));
+    });
+    idx.forEach(([c,i],k)=>{const hit=el('rect',{x:xs(k)-14,y:T,width:28,height:ph,fill:'transparent',tabindex:0,style:'cursor:pointer'},svg);
+      bindTip(hit,()=>[tline(null,`${PERT_LABEL[p]} ${fmtL(c[0],c[1])}`),...series.map(([m])=>tline(pct(acc(m,i)),MODEL_LABEL[D.models[m]]))]);
+      hit.addEventListener('click',()=>{st.cond=i;st.cell=null;render()});
+      tbl.push([`${PERT_LABEL[p]} ${fmtL(c[0],c[1])}`,...series.map(([m])=>pct(acc(m,i)))])});
+  });
+  const t=document.getElementById('curvesTable');t.replaceChildren();const table=document.createElement('table');
+  const hr=table.insertRow();['Condition',...series.map(([m])=>MODEL_LABEL[D.models[m]])].forEach(h=>{const th=document.createElement('th');th.textContent=h;hr.appendChild(th)});
+  tbl.forEach(r=>{const tr=table.insertRow();r.forEach(v=>{tr.insertCell().textContent=v})});t.appendChild(table);
+}
+
+// 3 confusion matrix
+function drawConfusion(){
+  const svg=document.getElementById('conf');svg.replaceChildren();
+  const rs=rowsOf(st.model,st.cond);const M=Array.from({length:NC},()=>Array(NC).fill(0));
+  rs.forEach(r=>M[D.img_class[r[0]]][r[3]]++);
+  const L=110,T=86,cs=46,W=L+cs*NC+10,H=T+cs*NC+10;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  txt(svg,L+cs*NC/2,12,'predicted class →',{'text-anchor':'middle'});
+  C.forEach((c,j)=>txt(svg,0,0,CL[j],{'text-anchor':'start',transform:`translate(${L+cs*j+cs/2-2},${T-6}) rotate(-45)`}));
+  const colSum=C.map((_,j)=>M.reduce((a,row)=>a+row[j],0));
+  C.forEach((c,i)=>{txt(svg,L-8,T+cs*i+cs/2+4,CL[i],{'text-anchor':'end'});
+    C.forEach((_,j)=>{const v=M[i][j],f=v/45;const r=el('rect',{x:L+cs*j,y:T+cs*i,width:cs,height:cs,rx:3,fill:v?seq(f):css('--seq-0'),class:'cell'+(st.cell&&st.cell[0]===i&&st.cell[1]===j?' sel':''),tabindex:0},svg);
+      if(v){const t=txt(svg,L+cs*j+cs/2,T+cs*i+cs/2+4,v,{'text-anchor':'middle','pointer-events':'none'});t.style.fill=inkOn(f)}
+      if(i===j)el('rect',{x:L+cs*j+1.5,y:T+cs*i+1.5,width:cs-3,height:cs-3,rx:3,fill:'none',stroke:css('--text-muted'),'stroke-dasharray':'3 2','pointer-events':'none'},svg);
+      bindTip(r,()=>[tline(v,'images'),tline(null,`true ${CL[i]} → predicted ${CL[j]}`)]);
+      const pick=()=>{st.cell=[i,j];drawConfusion();drawGallery()};r.addEventListener('click',pick);r.addEventListener('keydown',e=>{if(e.key==='Enter')pick()});
+    })});
+  const lg=document.getElementById('confLegend');lg.replaceChildren();
+  const sinks=colSum.map((v,j)=>[v,j]).sort((a,b)=>b[0]-a[0]).slice(0,2).filter(s=>s[0]>0);
+  const s=document.createElement('span');s.textContent=`${MODEL_LABEL[D.models[st.model]]} · ${PERT_LABEL[D.conds[st.cond][0]]} ${fmtL(...D.conds[st.cond])} · accuracy ${pct(acc(st.model,st.cond))} · most predicted: `+sinks.map(([v,j])=>`${CL[j]} (${v} of ${rs.length})`).join(', ');lg.appendChild(s);
+}
+
+// 4 confidence strip
+function drawStrip(){
+  const svg=document.getElementById('strip');svg.replaceChildren();
+  const rs=rowsOf(st.model,st.cond);const W=440,H=200,L=70,R=12,T=16,B=30,pw=W-L-R;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const xs=v=>L+pw*v;const lanes=[['correct',true,'--series-1'],['wrong',false,'--series-2']];
+  [0,.25,.5,.75,1].forEach(v=>{el('line',{x1:xs(v),x2:xs(v),y1:T,y2:H-B,class:'gridline'},svg);txt(svg,xs(v),H-12,Math.round(v*100)+'%',{'text-anchor':'middle'})});
+  txt(svg,L+pw/2,H,'confidence of the predicted class',{'text-anchor':'middle'});
+  const laneH=(H-T-B)/2;let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+  lanes.forEach(([name,ok,col],li)=>{const sub=rs.filter(r=>(r[3]===D.img_class[r[0]])===ok);const cy=T+laneH*li+laneH/2;
+    txt(svg,L-10,cy+4,`${name} (${sub.length})`,{'text-anchor':'end'});
+    sub.forEach(r=>{const y=cy+(rnd()-.5)*(laneH-18);const c=el('circle',{cx:xs(r[4]),cy:y,r:4,fill:css(col),'fill-opacity':.75,stroke:css('--surface-1'),'stroke-width':1},svg);
+      const hit=el('circle',{cx:xs(r[4]),cy:y,r:9,fill:'transparent',tabindex:0},svg);
+      bindTip(hit,()=>{const cv=document.createElement('canvas');cv.width=cv.height=96;cv.style.cssText='width:72px;height:72px;border-radius:4px;display:block;margin-bottom:4px';paint(cv,r[0],st.cond);return [cv,tline(pct(r[4]),`→ ${CL[r[3]]}`),tline(null,`true ${CL[D.img_class[r[0]]]} · ${D.images[r[0]]}`)]});
+    })});
+  const wrong=rs.filter(r=>r[3]!==D.img_class[r[0]]);const hi=wrong.filter(r=>r[4]>=.9).length;
+  document.getElementById('stripStats').textContent=wrong.length?`${wrong.length} wrong predictions; ${hi} of them (${pct(hi/wrong.length)}) with confidence ≥ 90%.`:'No wrong predictions under this condition.';
+}
+
+// perturbation preview on canvas
+const imgCache={};
+function paint(cv,img,ci){const [p,l]=D.conds[ci];const ctx=cv.getContext('2d');const draw=im=>{ctx.save();ctx.clearRect(0,0,96,96);
+  let f='';if(p==='brightness')f=`brightness(${l})`;if(p==='contrast')f=`contrast(${l})`;if(p==='blur')f=`blur(${(l*96/224).toFixed(2)}px)`;ctx.filter=f||'none';
+  if(p==='rotation_small'){ctx.fillStyle='#808080';ctx.fillRect(0,0,96,96)}
+  if(p.startsWith('rotation')){ctx.translate(48,48);ctx.rotate(-l*Math.PI/180);ctx.translate(-48,-48)}
+  ctx.drawImage(im,0,0,96,96);ctx.restore();
+  if(p==='noise'){const d=ctx.getImageData(0,0,96,96),a=d.data;for(let k=0;k<a.length;k+=4){for(let ch=0;ch<3;ch++){const u=Math.random()||1e-9,v=Math.random();a[k+ch]=Math.max(0,Math.min(255,a[k+ch]+l*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)))}}ctx.putImageData(d,0,0)}};
+  if(imgCache[img]?.complete)draw(imgCache[img]);else{const im=imgCache[img]||(imgCache[img]=new Image());im.addEventListener('load',()=>draw(im),{once:true});im.src=D.thumbs[img]}}
+
+function drawGallery(){
+  const g=document.getElementById('gallery');g.replaceChildren();const title=document.getElementById('galTitle');
+  let rs=rowsOf(st.model,st.cond);
+  if(st.cell){const [i,j]=st.cell;rs=rs.filter(r=>D.img_class[r[0]]===i&&r[3]===j);title.textContent=`Images: true ${CL[i]} → predicted ${CL[j]} (${rs.length})`}
+  else{rs=rs.filter(r=>r[3]!==D.img_class[r[0]]);title.textContent=`Images: all wrong predictions under this condition (${rs.length}) – click a matrix cell to change`}
+  rs=rs.slice().sort((a,b)=>b[4]-a[4]);
+  if(!rs.length){const e=document.createElement('div');e.className='empty';e.textContent='No images.';g.appendChild(e);return}
+  rs.slice(0,72).forEach(r=>{const d=document.createElement('div');d.className='thumb';const cv=document.createElement('canvas');cv.width=cv.height=96;paint(cv,r[0],st.cond);
+    const p=document.createElement('div');p.className='p';p.textContent=`${CL[r[3]]} · ${pct(r[4])}`;const n=document.createElement('div');n.textContent=D.images[r[0]]+(D.img_mixed[r[0]]?' · mixed boxes':'');d.append(cv,p,n);g.appendChild(d)});
+  if(rs.length>72){const e=document.createElement('div');e.className='empty';e.textContent=`+${rs.length-72} more`;g.appendChild(e)}
+}
+
+// 5 CLIP prompt heatmap (clean test)
+function drawPrompt(){
+  const svg=document.getElementById('prompt');svg.replaceChildren();
+  const ms=['clip_plain','clip_steel','clip_defect','clip_ensemble'].map(m=>D.models.indexOf(m));
+  const L=170,T=74,cw=90,ch=30,W=L+cw*NC+10,H=T+ch*ms.length+6;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  C.forEach((c,j)=>txt(svg,0,0,CL[j],{'text-anchor':'start',transform:`translate(${L+cw*j+cw/2-4},${T-8}) rotate(-30)`}));
+  ms.forEach((m,i)=>{const rs=rowsOf(m,CLEAN);txt(svg,L-8,T+ch*i+ch/2+4,MODEL_LABEL[D.models[m]],{'text-anchor':'end'});
+    C.forEach((_,j)=>{const v=rs.filter(r=>r[3]===j).length/rs.length;const r=el('rect',{x:L+cw*j,y:T+ch*i,width:cw,height:ch,rx:3,fill:v?seq(v):css('--seq-0'),class:'cell',tabindex:0},svg);
+      const t=txt(svg,L+cw*j+cw/2,T+ch*i+ch/2+4,pct(v),{'text-anchor':'middle','pointer-events':'none'});t.style.fill=inkOn(v);
+      bindTip(r,()=>[tline(pct(v),`of clean test images predicted ${CL[j]}`),tline(null,`${MODEL_LABEL[D.models[m]]} · accuracy ${pct(acc(m,CLEAN))}`)])})});
+  const per={};ms.slice(0,3).forEach(m=>rowsOf(m,CLEAN).forEach(r=>{(per[r[0]]??=[]).push(r[3])}));
+  const agree=Object.values(per).filter(a=>a.length===3&&a.every(x=>x===a[0])).length;
+  document.getElementById('promptAgree').textContent=`The three single prompts give the same answer for ${agree} of ${Object.keys(per).length} images (${pct(agree/Object.keys(per).length)}).`;
+}
+
+// 6 texture direction in training data vs rotation robustness
+function drawOrient(){
+  const svg=document.getElementById('orient');svg.replaceChildren();
+  const R=D.models.indexOf('resnet'),r90=condIdx('rotation',90);
+  const W=760,L=118,Rm=120,T=24,rh=30,H=T+rh*NC+34,pw=W-L-Rm;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const xs=v=>L+pw*v;
+  [0,0.25,0.5,0.75,1].forEach(v=>{el('line',{x1:xs(v),x2:xs(v),y1:T-6,y2:T+rh*NC,class:'gridline'},svg);txt(svg,xs(v),T+rh*NC+16,Math.round(v*100)+'%',{'text-anchor':'middle'})});
+  el('line',{x1:xs(.5),x2:xs(.5),y1:T-10,y2:T+rh*NC,stroke:css('--neutral'),'stroke-dasharray':'4 3','stroke-width':1.5},svg);
+  txt(svg,xs(.5),T-12,'no dominant direction',{'text-anchor':'middle'});
+  txt(svg,L,H-2,'← stripes run left-right',{'text-anchor':'start'});txt(svg,L+pw,H-2,'stripes run up-down →',{'text-anchor':'end'});
+  txt(svg,W-Rm+16,T-12,'acc. at 90°',{});
+  let seed=11;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+  const notes=[];
+  C.forEach((_,i)=>{const cy=T+rh*i+rh/2;txt(svg,L-8,cy+4,CL[i],{'text-anchor':'end'});
+    const vals=D.orient.filter(o=>o[0]===i&&o[2]==='train').map(o=>o[1]);
+    vals.forEach(v=>el('circle',{cx:xs(v),cy:cy+(rnd()-.5)*(rh-10),r:2.5,fill:css('--series-1'),'fill-opacity':.55},svg));
+    const below=vals.filter(v=>v<.5).length/vals.length;
+    const a=acc(R,r90,i);const t=txt(svg,W-Rm+16,cy+4,pct(a),{'class':'ttl'});
+    const hit=el('rect',{x:L,y:T+rh*i,width:pw,height:rh,fill:'transparent',tabindex:0},svg);
+    bindTip(hit,()=>[tline(pct(below),'of training images stretched left-right'),tline(pct(1-below),'stretched up-down'),tline(pct(a),`test accuracy after 90° rotation`),tline(null,CL[i])]);
+    notes.push([CL[i],below,a]);
+  });
+  const ri=notes.find(n=>n[0]==='rolled-in scale'),sc=notes.find(n=>n[0]==='scratches'),inc=notes.find(n=>n[0]==='inclusion');
+  document.getElementById('orientNote').textContent=`Rolled-in scale is stretched left-right in ${pct(ri[1])} of training images, so the model never saw it in the other orientation (${pct(ri[2])} after 90°). Scratches appear in both orientations (${pct(sc[1])} / ${pct(1-sc[1])}) and survive rotation (${pct(sc[2])}). Inclusion is also one-directional (${pct(1-inc[1])} up-down) yet keeps ${pct(inc[2])}: orientation explains the rolled-in scale failure, but other cues must carry inclusion.`;
+}
+
+// observations (computed, so they stay true if predictions.csv changes)
+function drawObs(){
+  const R=D.models.indexOf('resnet'),E=D.models.indexOf('clip_ensemble'),S=D.models.indexOf('clip_steel');
+  const sink=(m,ci)=>{const cnt=Array(NC).fill(0);rowsOf(m,ci).forEach(r=>{if(r[3]!==D.img_class[r[0]])cnt[r[3]]++});const tot=cnt.reduce((a,b)=>a+b,0);const j=cnt.indexOf(Math.max(...cnt));return [CL[j],tot?cnt[j]/tot:0]};
+  const n10=condIdx('noise',10),b3=condIdx('blur',3),c04=condIdx('contrast',0.4),r90=condIdx('rotation',90),r180=condIdx('rotation',180),r270=condIdx('rotation',270);
+  const ri=C.indexOf('rolled-in_scale');
+  const all=D.rows.filter(r=>r[1]===R&&r[2]!==CLEAN);const wr=all.filter(r=>r[3]!==D.img_class[r[0]]);const hi=wr.filter(r=>r[4]>=.9).length;
+  const mixedAcc=v=>{const s=all.filter(r=>D.img_mixed[r[0]]===v);return s.filter(r=>r[3]===D.img_class[r[0]]).length/s.length};
+  const steel=rowsOf(S,CLEAN);const steelInc=steel.filter(r=>r[3]===C.indexOf('inclusion')).length;
+  const ens=rowsOf(E,CLEAN);const ensScr=ens.filter(r=>r[3]===C.indexOf('scratches')).length;
+  const items=[
+    `ResNet-18 is ${pct(acc(R,CLEAN))} correct on clean images but falls to ${pct(acc(R,n10))} with mild noise (σ=10) and ${pct(acc(R,b3))} with blur 3 px – it relies on fine texture that these perturbations destroy.`,
+    `Errors are not random: each perturbation pulls predictions toward its own "sink" class. Noise σ=10 → ${sink(R,n10)[0]} (${pct(sink(R,n10)[1])} of errors); blur 3 px → ${sink(R,b3)[0]} (${pct(sink(R,b3)[1])}); contrast ×0.4 → ${sink(R,c04)[0]} (${pct(sink(R,c04)[1])}).`,
+    `Rotation by 90° or 270° breaks rolled-in scale (${pct(acc(R,r90,ri))} and ${pct(acc(R,r270,ri))} correct), while 180° leaves it at ${pct(acc(R,r180,ri))}. View 6: every training image of this class is stretched left-right (the rolling direction), so the model learned the direction as part of the class – a shortcut that a camera mounted at 90° would expose.`,
+    `When ResNet-18 is wrong under perturbation, ${pct(hi/wr.length)} of its errors still have ≥90% confidence – confidence alone would not warn an operator.`,
+    `Images whose boxes include another defect type ("mixed boxes") are not harder: ${pct(mixedAcc(true))} vs ${pct(mixedAcc(false))} accuracy over all perturbations. Hypothesis rejected for now.`,
+    `CLIP zero-shot is near chance (${pct(acc(E,CLEAN))} ensemble). Its answer is driven by the prompt: the "steel" prompt sends ${steelInc} of 270 clean images to inclusion, the ensemble sends ${ensScr} to scratches.`,
+    `Caveat to check before reporting noise results: noise is added per RGB channel, so grayscale images become colored – part of the drop may be a color effect, not noise.`
+  ];
+  const ul=document.getElementById('obs');ul.replaceChildren(...items.map(s=>{const li=document.createElement('li');li.textContent=s;return li}));
+}
+
+function render(){fM.value=st.model;syncLevels();drawOverview();drawCurves();drawConfusion();drawStrip();drawGallery()}
+render();drawPrompt();drawOrient();drawObs();
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(hideTip,50)});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{render();drawPrompt();drawOrient()});
+})();
+</script>
+</body>
+</html>
