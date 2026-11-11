@@ -90,4 +90,4 @@ Only one person needs to run it. Everyone else pulls `outputs/predictions.csv` f
 ## Dataset citation
 
 K. Song and Y. Yan, "A noise robust method based on completed local binary patterns for hot-rolled steel strip surface defects", *Applied Surface Science*, 285:858–864, 2013.
-Download source used: SOURCE_URL (fill in).
+Download source used: https://figshare.com/articles/dataset/NEU-CLS/28903550
